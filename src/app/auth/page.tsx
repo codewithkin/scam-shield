@@ -31,7 +31,7 @@ export default function AuthPage() {
     <div className="flex min-h-screen items-center justify-center bg-gray-100">
       <Card className="w-full max-w-sm shadow-lg">
         <CardHeader>
-          <CardTitle className="text-center text-2xl font-bold">ScamShield</CardTitle>
+          <CardTitle className="text-center text-2xl font-semibold">ScamShield</CardTitle>
         </CardHeader>
         <CardContent>
           <p className="text-center text-sm text-gray-600">
