@@ -1,8 +1,6 @@
 function Auth() {
   return (
-    <div>
-      
-    </div>
+    
   )
 }
 
