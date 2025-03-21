@@ -4,6 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
 import { authClient } from "@/lib/auth-client";
+import { Loader2 } from "lucide-react";
 import { useState } from "react";
 import { FcGoogle } from "react-icons/fc";
 import { toast } from "sonner";
@@ -54,11 +55,21 @@ export default function AuthPage() {
 
           <Button
             onClick={handleSignIn}
+            disabled={loading}
             variant="default"
             className="w-full flex items-center gap-2"
           >
+            {
+              loading ?
+              <Loader2 className="animate-spin" />:
             <FcGoogle className="h-5 w-5" />
-            Sign in with Google
+              
+            }
+            {
+              loading ? 
+              "Signing you in..." :
+              "Sign in with Google"
+            }
           </Button>
         </CardContent>
       </Card>
