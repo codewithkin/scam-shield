@@ -1,11 +1,20 @@
 "use client";
 
 import { useState } from "react";
-import { Input } from "@/components/ui/input";
-import { Button } from "@/components/ui/button";
-import { Card, CardContent } from "@/components/ui/card";
-import { ScrollArea } from "@/components/ui/scroll-area";
-import { Send, Bot } from "lucide-react";
+import { Button } from "./ui/button";
+import { Loader2, Plus, Send } from "lucide-react";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
+import { useMutation, useQuery } from "@tanstack/react-query";
+import { authClient } from "@/lib/auth-client";
+import { Input } from "./ui/input";
+import axios from "axios";
+import { toast } from "sonner";
+import { Textarea } from "./ui/textarea";
 
 interface Message {
   role: "user" | "ai";
@@ -14,66 +23,103 @@ interface Message {
 
 export default function MainChatPage() {
   const [messages, setMessages] = useState<Message[]>([]);
+  const [message, setMessage] = useState<string>("");
   const [input, setInput] = useState("");
 
-  const handleSend = async () => {
-    if (!input.trim()) return;
+  // Create a send mutation
+  const { mutate: sendMessage, isPending: loading } = useMutation({
+    mutationKey: ["sendMessage"],
+    mutationFn: async () => {
+      const res = await axios.post("/api/scam", { message });
 
-    const userMessage: Message = { role: "user", content: input };
-    setMessages((prev) => [...prev, userMessage]);
-    setInput("");
+      return res.data;
+    },
+    onSuccess: (newMessages: any) => {
+      console.log("New messages: ", newMessages);
 
-    // Simulate AI response (replace with actual API call)
-    setTimeout(() => {
-      const aiResponse: Message = {
-        role: "ai",
-        content: "This is a placeholder AI response.",
-      };
-      setMessages((prev) => [...prev, aiResponse]);
-    }, 1000);
-  };
+      // Update the messages array
+      setMessages((prevMessages) => [...prevMessages, newMessages]);
+    },
+    onError: (e) => {
+      // Show an error message for logging
+      console.log("An error occured while sending message ", e);
+
+      // Show an error toast
+      toast.error(
+        "An error occured while sending message, please try again later",
+      );
+    },
+  });
+
+  // Get the user's data
+  const { data: profile } = useQuery({
+    queryKey: ["profile"],
+    queryFn: async () => {
+      const res = await authClient.getSession();
+
+      return res?.data?.user;
+    },
+  });
+
+  console.log("Profile: ", profile);
 
   return (
-    <div className="flex h-screen flex-col items-center justify-center bg-gray-100 p-4">
-      <Card className="w-full max-w-lg flex flex-col h-[80vh] shadow-lg">
-        <CardContent className="flex-grow overflow-hidden">
-          <ScrollArea className="h-full">
-            <div className="space-y-4 p-4">
-              {messages.map((msg, index) => (
-                <div
-                  key={index}
-                  className={`flex items-start gap-2 ${
-                    msg.role === "user" ? "justify-end" : "justify-start"
-                  }`}
-                >
-                  {msg.role === "ai" && (
-                    <Bot className="h-5 w-5 text-gray-500" />
-                  )}
-                  <div
-                    className={`rounded-lg p-2 max-w-xs ${
-                      msg.role === "user"
-                        ? "bg-blue-500 text-white"
-                        : "bg-gray-200 text-black"
-                    }`}
-                  >
-                    {msg.content}
-                  </div>
-                </div>
-              ))}
-            </div>
-          </ScrollArea>
-        </CardContent>
-        <div className="p-4 flex gap-2 border-t bg-white">
-          <Input
-            value={input}
-            onChange={(e) => setInput(e.target.value)}
-            placeholder="Type your message..."
+    <section className="w-full h-full">
+      {/* Topbar */}
+      <article className="w-full flex justify-between items-center p-4 md:py-4 md:px-8 shadow-md border-b border-slate-200">
+        <article>
+          <h2 className="text-xl font-semibold">ScamShield</h2>
+        </article>
+
+        <TooltipProvider>
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <Button variant="outline" size="icon">
+                <Plus size={20} />
+              </Button>
+            </TooltipTrigger>
+            <TooltipContent>
+              <p>New Chat</p>
+            </TooltipContent>
+          </Tooltip>
+        </TooltipProvider>
+      </article>
+
+      <article className="flex flex-col justify-center items-center w-full h-full">
+        <article className="w-full h-full justify-center text-center items-center p-20">
+          <h2 className="text-3xl font-semibold text-transparent bg-clip-text bg-gradient-to-r from-purple-500 to-sky-700">
+            Hey there, {profile?.name}
+          </h2>
+          <p className="text-slate-600">
+            Suspect that an email or a message is a scam ? Paste the message
+            here, I can help
+          </p>
+        </article>
+
+        <form
+          className="flex flex-col gap-2 items-center justify-center w-fit h-fit p-8"
+          onSubmit={async () => {
+            await sendMessage();
+          }}
+        >
+          <Textarea
+            name="message"
+            placeholder="Paste the message here"
+            className="md:min-w-[400px] min-w-full md:max-w-[400px] max-w-full h- max-h-[300px]"
+            id="message"
+            value={message}
+            onChange={(e) => setMessage(e.target.value)}
           />
-          <Button onClick={handleSend} variant="outline">
-            <Send className="h-5 w-5" />
+          <Button className="w-full" variant="default" type="submit">
+            {loading ? (
+              <Loader2 className="animate-spin" size={20} />
+            ) : (
+              <Send size={20} />
+            )}
+            {loading ? "Sending..." : "Send"}
           </Button>
-        </div>
-      </Card>
-    </div>
+        </form>
+      </article>
+    </section>
   );
 }
