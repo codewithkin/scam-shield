@@ -11,6 +11,7 @@
   "dependencies": {
     "@auth/prisma-adapter": "^2.8.0",
     "@prisma/client": "^6.5.0",
+    "@tanstack/react-query": "^5.69.0",
     "better-auth": "^1.2.4",
     "next": "15.2.3",
     "react": "^19.0.0",
