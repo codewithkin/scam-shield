@@ -1,12 +1,15 @@
-"use client";
 import MainChatPage from "@/components/MainChatPage";
+import { auth } from "@/lib/auth";
 import { createAuthClient } from "better-auth/react";
+import { headers } from "next/headers";
 import { redirect } from "next/navigation";
-const { useSession } = createAuthClient();
 
-function Chat() {
+async function Chat() {
   // Check if the user is logged in
-  const { data: session } = useSession();
+  const session = await auth.api.getSession({
+    headers: await headers(),
+  });
+
 
   console.log("Session: ", session);
 
