@@ -46,7 +46,9 @@ export default function MainChatPage() {
                     msg.role === "user" ? "justify-end" : "justify-start"
                   }`}
                 >
-                  {msg.role === "ai" && <Bot className="h-5 w-5 text-gray-500" />}
+                  {msg.role === "ai" && (
+                    <Bot className="h-5 w-5 text-gray-500" />
+                  )}
                   <div
                     className={`rounded-lg p-2 max-w-xs ${
                       msg.role === "user"

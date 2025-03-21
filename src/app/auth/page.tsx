@@ -59,17 +59,12 @@ export default function AuthPage() {
             variant="default"
             className="w-full flex items-center gap-2"
           >
-            {
-              loading ?
-              <Loader2 className="animate-spin" />:
-            <FcGoogle className="h-5 w-5" />
-              
-            }
-            {
-              loading ? 
-              "Signing you in..." :
-              "Sign in with Google"
-            }
+            {loading ? (
+              <Loader2 className="animate-spin" />
+            ) : (
+              <FcGoogle className="h-5 w-5" />
+            )}
+            {loading ? "Signing you in..." : "Sign in with Google"}
           </Button>
         </CardContent>
       </Card>
