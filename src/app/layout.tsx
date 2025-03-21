@@ -5,8 +5,8 @@ import { QueryClientProviderWrapper } from "@/providers/QueryClient";
 
 const poppins = Poppins({
   subsets: ["latin"],
-  weight: ["200", "400", "600", "800"]
-})
+  weight: ["200", "400", "600", "800"],
+});
 
 export const metadata: Metadata = {
   title: "ScamShield - AI-Powered Scam Detection",
@@ -57,11 +57,7 @@ export default function RootLayout({
   return (
     <html lang="en">
       <QueryClientProviderWrapper>
-      <body
-        className={`${poppins.className} antialiased`}
-      >
-        {children}
-      </body>
+        <body className={`${poppins.className} antialiased`}>{children}</body>
       </QueryClientProviderWrapper>
     </html>
   );

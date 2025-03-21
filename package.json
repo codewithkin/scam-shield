@@ -6,7 +6,8 @@
     "dev": "next dev --turbopack",
     "build": "next build",
     "start": "next start",
-    "lint": "next lint"
+    "lint": "next lint",
+    "format": "npx prettier --write ."
   },
   "dependencies": {
     "@auth/prisma-adapter": "^2.8.0",
@@ -14,6 +15,7 @@
     "@tanstack/react-query": "^5.69.0",
     "better-auth": "^1.2.4",
     "next": "15.2.3",
+    "prettier": "^3.5.3",
     "react": "^19.0.0",
     "react-dom": "^19.0.0"
   },
