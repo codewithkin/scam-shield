@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Button } from "./ui/button";
 import { Loader2, Plus, Send } from "lucide-react";
 import {
@@ -30,15 +30,21 @@ export default function MainChatPage() {
   const { mutate: sendMessage, isPending: loading } = useMutation({
     mutationKey: ["sendMessage"],
     mutationFn: async () => {
+      // Add the user's message to the array
+      setMessages((prevMessages) => [
+        ...prevMessages,
+        { role: "user", content: message },
+      ]);
+
       const res = await axios.post("/api/scam", { message });
 
       return res.data;
     },
-    onSuccess: (newMessages: any) => {
-      console.log("New messages: ", newMessages);
+    onSuccess: (response: any) => {
+      console.log("AI Response: ", response);
 
       // Update the messages array
-      setMessages((prevMessages) => [...prevMessages, newMessages]);
+      setMessages((prevMessages) => [...prevMessages, response]);
     },
     onError: (e) => {
       // Show an error message for logging
@@ -61,7 +67,10 @@ export default function MainChatPage() {
     },
   });
 
-  console.log("Profile: ", profile);
+  // Log the messages on each request using useEffect
+  useEffect(() => {
+    console.log("Messages: ", messages);
+  }, [messages]);
 
   return (
     <section className="w-full h-full">
@@ -86,39 +95,52 @@ export default function MainChatPage() {
       </article>
 
       <article className="flex flex-col justify-center items-center w-full h-full">
-        <article className="w-full h-full justify-center text-center items-center p-20">
-          <h2 className="text-3xl font-semibold text-transparent bg-clip-text bg-gradient-to-r from-purple-500 to-sky-700">
-            Hey there, {profile?.name}
-          </h2>
-          <p className="text-slate-600">
-            Suspect that an email or a message is a scam ? Paste the message
-            here, I can help
-          </p>
-        </article>
+        {messages.length > 1 ? (
+          <article>hi</article>
+        ) : (
+          <article className="w-full h-full justify-center text-center items-center p-20">
+            <h2 className="text-3xl font-semibold text-transparent bg-clip-text bg-gradient-to-r from-purple-500 to-sky-700">
+              Hey there, {profile?.name}
+            </h2>
+            <p className="text-slate-600">
+              Suspect that an email or a message is a scam ? Paste the message
+              here, I can help
+            </p>
+          </article>
+        )}
 
-        <form
-          className="flex flex-col gap-2 items-center justify-center w-fit h-fit p-8"
-          onSubmit={async () => {
-            await sendMessage();
-          }}
-        >
-          <Textarea
-            name="message"
-            placeholder="Paste the message here"
-            className="md:min-w-[400px] min-w-full md:max-w-[400px] max-w-full h- max-h-[300px]"
-            id="message"
-            value={message}
-            onChange={(e) => setMessage(e.target.value)}
-          />
-          <Button className="w-full" variant="default" type="submit">
-            {loading ? (
-              <Loader2 className="animate-spin" size={20} />
-            ) : (
-              <Send size={20} />
-            )}
-            {loading ? "Sending..." : "Send"}
-          </Button>
-        </form>
+        {messages.length < 1 && (
+          <form
+            className="flex flex-col gap-2 items-center justify-center w-fit h-fit p-8"
+            onSubmit={async (e) => {
+              e.preventDefault();
+
+              sendMessage();
+            }}
+          >
+            <Textarea
+              name="message"
+              placeholder="Paste the message here"
+              className="md:min-w-[400px] min-w-full md:max-w-[400px] max-w-full h- max-h-[300px]"
+              id="message"
+              value={message}
+              onChange={(e) => setMessage(e.target.value)}
+            />
+            <Button
+              className="w-full"
+              disabled={loading}
+              variant="default"
+              type="submit"
+            >
+              {loading ? (
+                <Loader2 className="animate-spin" size={20} />
+              ) : (
+                <Send size={20} />
+              )}
+              {loading ? "Sending..." : "Send"}
+            </Button>
+          </form>
+        )}
       </article>
     </section>
   );
