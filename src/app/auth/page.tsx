@@ -3,6 +3,7 @@
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
+import { authClient } from "@/lib/auth-client";
 import { useState } from "react";
 import { FcGoogle } from "react-icons/fc";
 import { toast } from "sonner";
@@ -14,24 +15,35 @@ export default function AuthPage() {
   const handleSignIn = async () => {
     try {
       // Show the loading spinner
-      setLoading(true)
+      setLoading(true);
+
+      // Sign in
+      const data = await authClient.signIn.social({
+        provider: "google",
+      });
+
+      return data;
     } catch (e) {
       // Add a log for debugging
       console.log("An error occured while signing in: ", e);
 
       // Show an error toast
-      toast.error("An error occured while signing you in, please try again later");
+      toast.error(
+        "An error occured while signing you in, please try again later",
+      );
     } finally {
       // Hide the loading spinner
       setLoading(false);
     }
-  }
+  };
 
   return (
     <div className="flex min-h-screen items-center justify-center bg-gray-100">
       <Card className="w-full max-w-sm shadow-lg">
         <CardHeader>
-          <CardTitle className="text-center text-2xl font-semibold">ScamShield</CardTitle>
+          <CardTitle className="text-center text-2xl font-semibold">
+            ScamShield
+          </CardTitle>
         </CardHeader>
         <CardContent>
           <p className="text-center text-sm text-gray-600">

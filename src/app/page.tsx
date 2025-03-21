@@ -2,7 +2,7 @@
 import MainChatPage from "@/components/MainChatPage";
 import { createAuthClient } from "better-auth/react";
 import { redirect } from "next/navigation";
-const { useSession } = createAuthClient() 
+const { useSession } = createAuthClient();
 
 function Chat() {
   // Check if the user is logged in
@@ -11,15 +11,13 @@ function Chat() {
   console.log("Session: ", session);
 
   // If the user is not logged in....
-  if(!session) {
+  if (!session) {
     // Redirect to the auth page
     return redirect("/auth");
   }
 
   // Otherwise, continue as normal
-  return (
-    <MainChatPage />
-  )
+  return <MainChatPage />;
 }
 
 export default Chat;

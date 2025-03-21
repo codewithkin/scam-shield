@@ -1,9 +1,5 @@
 function MainChatPage() {
-  return (
-    <div>
-      
-    </div>
-  )
+  return <div></div>;
 }
 
-export default MainChatPage
+export default MainChatPage;
