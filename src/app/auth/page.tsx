@@ -21,8 +21,7 @@ export default function AuthPage() {
       // Sign in
       const data = await authClient.signIn.social({
         provider: "google",
-    callbackURL: "/",
-
+        callbackURL: "/",
       });
 
       return data;

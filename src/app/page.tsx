@@ -10,7 +10,6 @@ async function Chat() {
     headers: await headers(),
   });
 
-
   console.log("Session: ", session);
 
   // If the user is not logged in....
