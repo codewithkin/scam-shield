@@ -54,7 +54,7 @@ export default function MainChatPage() {
     onError: (e) => {
       console.log("An error occurred while sending message ", e);
       toast.error(
-        "An error occurred while sending message, please try again later"
+        "An error occurred while sending message, please try again later",
       );
     },
   });
@@ -73,7 +73,11 @@ export default function MainChatPage() {
 
   const getScamColor = (score?: number) => {
     if (!score) return "text-gray-500";
-    return score > 75 ? "text-red-500" : score > 40 ? "text-orange-500" : "text-green-500";
+    return score > 75
+      ? "text-red-500"
+      : score > 40
+        ? "text-orange-500"
+        : "text-green-500";
   };
 
   return (
@@ -109,8 +113,13 @@ export default function MainChatPage() {
                   <Card>
                     <CardHeader className="flex gap-2 items-center">
                       <Avatar>
-                        <AvatarFallback>{profile?.name?.charAt(0)}</AvatarFallback>
-                        <AvatarImage src={profile?.image || ""} alt={`${profile?.name} avatar`} />
+                        <AvatarFallback>
+                          {profile?.name?.charAt(0)}
+                        </AvatarFallback>
+                        <AvatarImage
+                          src={profile?.image || ""}
+                          alt={`${profile?.name} avatar`}
+                        />
                       </Avatar>
                       <CardTitle>{profile?.name}</CardTitle>
                     </CardHeader>
@@ -174,8 +183,8 @@ export default function MainChatPage() {
                                     message.scamPercentage! > 75
                                       ? "red"
                                       : message.scamPercentage! > 40
-                                      ? "orange"
-                                      : "green",
+                                        ? "orange"
+                                        : "green",
                                   textColor: "#333",
                                   trailColor: "#d6d6d6",
                                 })}
@@ -227,7 +236,11 @@ export default function MainChatPage() {
             onChange={(e) => setMessage(e.target.value)}
           />
           <Button className="w-full" disabled={loading} type="submit">
-            {loading ? <Loader2 className="animate-spin" size={20} /> : <Send size={20} />}
+            {loading ? (
+              <Loader2 className="animate-spin" size={20} />
+            ) : (
+              <Send size={20} />
+            )}
             {loading ? "Sending..." : "Send"}
           </Button>
         </form>
