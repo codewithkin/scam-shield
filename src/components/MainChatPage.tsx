@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import { motion } from "framer-motion"; // Import Framer Motion
 import { Button } from "./ui/button";
 import { Loader2, Plus, Send } from "lucide-react";
 import {
@@ -52,7 +53,7 @@ export default function MainChatPage() {
     onError: (e) => {
       console.log("An error occurred while sending message ", e);
       toast.error(
-        "An error occurred while sending message, please try again later",
+        "An error occurred while sending message, please try again later"
       );
     },
   });
@@ -69,8 +70,19 @@ export default function MainChatPage() {
     console.log("Messages: ", messages);
   }, [messages]);
 
+  // Function to determine scam score color
+  const getScamColor = (score?: number) => {
+    if (!score) return "text-gray-500";
+    return score > 75
+      ? "text-red-500"
+      : score > 40
+      ? "text-orange-500"
+      : "text-green-500";
+  };
+
   return (
     <section className="w-full h-full">
+      {/* Header */}
       <article className="w-full flex justify-between items-center p-4 md:py-4 md:px-8 shadow-md border-b border-slate-200">
         <h2 className="text-xl font-semibold">ScamShield</h2>
         <TooltipProvider>
@@ -87,11 +99,18 @@ export default function MainChatPage() {
         </TooltipProvider>
       </article>
 
+      {/* Messages */}
       <article className="flex flex-col justify-center items-center w-full h-full">
         {messages.length > 1 ? (
           <article className="w-full h-full p-4">
             {messages.map((message, index) => (
-              <div key={index} className="mb-4">
+              <motion.div
+                key={index}
+                className="mb-4"
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.4 }}
+              >
                 {message.role === "user" ? (
                   <Card>
                     <CardHeader className="flex gap-2 items-center">
@@ -108,7 +127,9 @@ export default function MainChatPage() {
                       <CardTitle>{profile?.name}</CardTitle>
                     </CardHeader>
                     <CardContent>
-                      <p className="whitespace-pre-wrap text-sm text-slate-600">{message.content}</p>
+                      <p className="whitespace-pre-wrap text-sm text-slate-600">
+                        {message.content}
+                      </p>
                     </CardContent>
                   </Card>
                 ) : (
@@ -135,36 +156,50 @@ export default function MainChatPage() {
                       </CardContent>
                     </Card>
 
-                    <Card>
-                      <CardHeader>
-                        <CardTitle>Scam Percentage</CardTitle>
-                      </CardHeader>
-                      <CardContent className="w-32 h-32 pb-0">
-                        <CircularProgressbar
-                          value={message.scamPercentage || 0}
-                          text={`${message.scamPercentage || 0}%`}
-                          styles={buildStyles({
-                            textSize: "16px",
-                            pathColor:
-                              message.scamPercentage! > 50 ? "red" : "green",
-                            textColor: "#333",
-                            trailColor: "#d6d6d6",
-                          })}
-                        />
-                      </CardContent>
-                    </Card>
+                    {/* Scam Percentage with Animation */}
+                    <motion.div
+                      initial={{ scale: 0.8, opacity: 0 }}
+                      animate={{ scale: 1, opacity: 1 }}
+                      transition={{ duration: 0.5 }}
+                    >
+                      <Card>
+                        <CardHeader>
+                          <CardTitle>Scam Percentage</CardTitle>
+                        </CardHeader>
+                        <CardContent className="w-32 h-32 pb-0">
+                          <CircularProgressbar
+                            value={message.scamPercentage || 0}
+                            text={`${message.scamPercentage || 0}%`}
+                            styles={buildStyles({
+                              textSize: "16px",
+                              pathColor:
+                                message.scamPercentage! > 75
+                                  ? "red"
+                                  : message.scamPercentage! > 40
+                                  ? "orange"
+                                  : "green",
+                              textColor: "#333",
+                              trailColor: "#d6d6d6",
+                            })}
+                          />
+                        </CardContent>
+                      </Card>
+                    </motion.div>
 
+                    {/* Scam Score */}
                     <Card>
                       <CardHeader>
                         <CardTitle>Scam Score</CardTitle>
                       </CardHeader>
                       <CardContent>
-                        <p>{message.scamScore}</p>
+                        <p className={getScamColor(message.scamScore)}>
+                          {message.scamScore}
+                        </p>
                       </CardContent>
                     </Card>
                   </article>
                 )}
-              </div>
+              </motion.div>
             ))}
           </article>
         ) : (
@@ -179,9 +214,10 @@ export default function MainChatPage() {
           </article>
         )}
 
+        {/* Message Input */}
         <form
           className="flex flex-col gap-2 items-center justify-center w-fit h-fit p-8"
-          onSubmit={async (e) => {
+          onSubmit={(e) => {
             e.preventDefault();
             sendMessage();
           }}
@@ -192,17 +228,8 @@ export default function MainChatPage() {
             value={message}
             onChange={(e) => setMessage(e.target.value)}
           />
-          <Button
-            className="w-full"
-            disabled={loading}
-            variant="default"
-            type="submit"
-          >
-            {loading ? (
-              <Loader2 className="animate-spin" size={20} />
-            ) : (
-              <Send size={20} />
-            )}
+          <Button className="w-full" disabled={loading} type="submit">
+            {loading ? <Loader2 className="animate-spin" size={20} /> : <Send size={20} />}
             {loading ? "Sending..." : "Send"}
           </Button>
         </form>
