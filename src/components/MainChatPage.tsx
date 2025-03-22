@@ -87,7 +87,13 @@ export default function MainChatPage() {
         <TooltipProvider>
           <Tooltip>
             <TooltipTrigger asChild>
-              <Button variant="outline" size="icon">
+              <Button onClick={() => {
+                // Clear the message input
+                setMessage("");
+
+                // Clear the messages array
+                setMessages([]);
+              }} variant="outline" size="icon">
                 <Plus size={20} />
               </Button>
             </TooltipTrigger>
@@ -211,7 +217,7 @@ export default function MainChatPage() {
             ))}
           </article>
         ) : (
-          <article className="w-full h-full flex flex-col justify-center text-center items-center p-20">
+          <article className="w-full h-full flex flex-col justify-center text-center items-center px-4 py-8 md:p-20">
             <h2 className="text-3xl font-semibold text-transparent bg-clip-text bg-gradient-to-r from-purple-500 to-sky-700">
               Hey there, {profile?.name}
             </h2>
