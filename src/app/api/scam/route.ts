@@ -64,7 +64,15 @@ export async function POST(req: Request) {
     // Extract parsed structured response
     const structuredResponse = completion.choices[0].message.parsed;
 
-    return NextResponse.json(structuredResponse);
+    // Configure CORS
+    const corsHeaders = {
+      "Access-Control-Allow-Origin": "*",
+      "Access-Control-Allow-Methods": "GET, POST, OPTIONS",
+      "Access-Control-Allow-Headers": "Content-Type",
+    };
+
+    // return an object containing the response and cors headers
+    return NextResponse.json(structuredResponse, { headers: corsHeaders });[]
   } catch (error) {
     console.error("Error analyzing message:", error);
     return NextResponse.json(
