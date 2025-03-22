@@ -15,71 +15,64 @@ import { Input } from "./ui/input";
 import axios from "axios";
 import { toast } from "sonner";
 import { Textarea } from "./ui/textarea";
+import { Badge } from "./ui/badge";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { CircularProgressbar, buildStyles } from "react-circular-progressbar";
+import "react-circular-progressbar/dist/styles.css";
+import { Avatar, AvatarFallback, AvatarImage } from "./ui/avatar";
 
 interface Message {
   role: "user" | "ai";
   content: string;
+  scam_words?: string[];
+  scamPercentage?: number;
+  reason?: string;
+  scamScore?: number;
 }
 
 export default function MainChatPage() {
   const [messages, setMessages] = useState<Message[]>([]);
   const [message, setMessage] = useState<string>("");
-  const [input, setInput] = useState("");
 
-  // Create a send mutation
   const { mutate: sendMessage, isPending: loading } = useMutation({
     mutationKey: ["sendMessage"],
     mutationFn: async () => {
-      // Add the user's message to the array
       setMessages((prevMessages) => [
         ...prevMessages,
         { role: "user", content: message },
       ]);
 
       const res = await axios.post("/api/scam", { message });
-
+      setMessage("");
       return res.data;
     },
     onSuccess: (response: any) => {
-      console.log("AI Response: ", response);
-
-      // Update the messages array
       setMessages((prevMessages) => [...prevMessages, response]);
     },
     onError: (e) => {
-      // Show an error message for logging
-      console.log("An error occured while sending message ", e);
-
-      // Show an error toast
+      console.log("An error occurred while sending message ", e);
       toast.error(
-        "An error occured while sending message, please try again later",
+        "An error occurred while sending message, please try again later",
       );
     },
   });
 
-  // Get the user's data
   const { data: profile } = useQuery({
     queryKey: ["profile"],
     queryFn: async () => {
       const res = await authClient.getSession();
-
       return res?.data?.user;
     },
   });
 
-  // Log the messages on each request using useEffect
   useEffect(() => {
     console.log("Messages: ", messages);
   }, [messages]);
 
   return (
     <section className="w-full h-full">
-      {/* Topbar */}
       <article className="w-full flex justify-between items-center p-4 md:py-4 md:px-8 shadow-md border-b border-slate-200">
-        <article>
-          <h2 className="text-xl font-semibold">ScamShield</h2>
-        </article>
-
+        <h2 className="text-xl font-semibold">ScamShield</h2>
         <TooltipProvider>
           <Tooltip>
             <TooltipTrigger asChild>
@@ -96,51 +89,123 @@ export default function MainChatPage() {
 
       <article className="flex flex-col justify-center items-center w-full h-full">
         {messages.length > 1 ? (
-          <article>hi</article>
+          <article className="w-full h-full p-4">
+            {messages.map((message, index) => (
+              <div key={index} className="mb-4">
+                {message.role === "user" ? (
+                  <Card>
+                    <CardHeader className="flex gap-2 items-center">
+                      {/* User avatar */}
+                      <Avatar>
+                        <AvatarFallback>
+                          {profile?.name?.charAt(0)}
+                        </AvatarFallback>
+                        <AvatarImage
+                          src={profile?.image || ""}
+                          alt={`${profile?.name} avatar`}
+                        />
+                      </Avatar>
+                      <CardTitle>{profile?.name}</CardTitle>
+                    </CardHeader>
+                    <CardContent>
+                      <p className="whitespace-pre-wrap text-sm text-slate-600">{message.content}</p>
+                    </CardContent>
+                  </Card>
+                ) : (
+                  <article className="flex flex-col gap-4">
+                    <Card>
+                      <CardHeader>
+                        <CardTitle>Scam Words</CardTitle>
+                      </CardHeader>
+                      <CardContent className="flex flex-wrap gap-2">
+                        {message.scam_words?.map((word) => (
+                          <Badge variant="destructive" key={word}>
+                            {word}
+                          </Badge>
+                        ))}
+                      </CardContent>
+                    </Card>
+
+                    <Card>
+                      <CardHeader>
+                        <CardTitle>Reason</CardTitle>
+                      </CardHeader>
+                      <CardContent>
+                        <p>{message.reason}</p>
+                      </CardContent>
+                    </Card>
+
+                    <Card>
+                      <CardHeader>
+                        <CardTitle>Scam Percentage</CardTitle>
+                      </CardHeader>
+                      <CardContent className="w-32 h-32 pb-0">
+                        <CircularProgressbar
+                          value={message.scamPercentage || 0}
+                          text={`${message.scamPercentage || 0}%`}
+                          styles={buildStyles({
+                            textSize: "16px",
+                            pathColor:
+                              message.scamPercentage! > 50 ? "red" : "green",
+                            textColor: "#333",
+                            trailColor: "#d6d6d6",
+                          })}
+                        />
+                      </CardContent>
+                    </Card>
+
+                    <Card>
+                      <CardHeader>
+                        <CardTitle>Scam Score</CardTitle>
+                      </CardHeader>
+                      <CardContent>
+                        <p>{message.scamScore}</p>
+                      </CardContent>
+                    </Card>
+                  </article>
+                )}
+              </div>
+            ))}
+          </article>
         ) : (
-          <article className="w-full h-full justify-center text-center items-center p-20">
+          <article className="w-full h-full flex flex-col justify-center text-center items-center p-20">
             <h2 className="text-3xl font-semibold text-transparent bg-clip-text bg-gradient-to-r from-purple-500 to-sky-700">
               Hey there, {profile?.name}
             </h2>
             <p className="text-slate-600">
-              Suspect that an email or a message is a scam ? Paste the message
-              here, I can help
+              Suspect that an email or a message is a scam? Paste the message
+              here, and I'll help.
             </p>
           </article>
         )}
 
-        {messages.length < 1 && (
-          <form
-            className="flex flex-col gap-2 items-center justify-center w-fit h-fit p-8"
-            onSubmit={async (e) => {
-              e.preventDefault();
-
-              sendMessage();
-            }}
+        <form
+          className="flex flex-col gap-2 items-center justify-center w-fit h-fit p-8"
+          onSubmit={async (e) => {
+            e.preventDefault();
+            sendMessage();
+          }}
+        >
+          <Textarea
+            placeholder="Paste the message here"
+            className="md:min-w-[400px] min-w-full md:max-w-[400px] max-w-full max-h-[300px]"
+            value={message}
+            onChange={(e) => setMessage(e.target.value)}
+          />
+          <Button
+            className="w-full"
+            disabled={loading}
+            variant="default"
+            type="submit"
           >
-            <Textarea
-              name="message"
-              placeholder="Paste the message here"
-              className="md:min-w-[400px] min-w-full md:max-w-[400px] max-w-full h- max-h-[300px]"
-              id="message"
-              value={message}
-              onChange={(e) => setMessage(e.target.value)}
-            />
-            <Button
-              className="w-full"
-              disabled={loading}
-              variant="default"
-              type="submit"
-            >
-              {loading ? (
-                <Loader2 className="animate-spin" size={20} />
-              ) : (
-                <Send size={20} />
-              )}
-              {loading ? "Sending..." : "Send"}
-            </Button>
-          </form>
-        )}
+            {loading ? (
+              <Loader2 className="animate-spin" size={20} />
+            ) : (
+              <Send size={20} />
+            )}
+            {loading ? "Sending..." : "Send"}
+          </Button>
+        </form>
       </article>
     </section>
   );
