@@ -223,7 +223,7 @@ export default function MainChatPage() {
         )}
 
         <form
-          className="flex flex-col gap-2 items-center justify-center w-fit h-fit p-8"
+          className="flex flex-col w-full p-4 gap-2 items-center justify-center md:w-fit md:h-fit  md:p-8"
           onSubmit={(e) => {
             e.preventDefault();
             sendMessage();
